@@ -30,10 +30,10 @@ impl MapType {
     }
 
     /// The fully-qualified Rust type corresponding to the map type.
-    pub fn rust_type(&self) -> &'static str {
+    pub fn rust_type(&self, prost_path: &str) -> String {
         match self {
-            MapType::HashMap => "::std::collections::HashMap",
-            MapType::BTreeMap => "::prost::alloc::collections::BTreeMap",
+            MapType::HashMap => "::std::collections::HashMap".to_string(),
+            MapType::BTreeMap => format!("{}::alloc::collections::BTreeMap", prost_path),
         }
     }
 }
@@ -48,10 +48,10 @@ impl BytesType {
     }
 
     /// The fully-qualified Rust type corresponding to the bytes type.
-    pub fn rust_type(&self) -> &'static str {
+    pub fn rust_type(&self, prost_path: &str) -> String {
         match self {
-            BytesType::Vec => "::prost::alloc::vec::Vec<u8>",
-            BytesType::Bytes => "::prost::bytes::Bytes",
+            BytesType::Vec => format!("{}::alloc::vec::Vec<u8>", prost_path),
+            BytesType::Bytes => format!("{}::bytes::Bytes", prost_path),
         }
     }
 }

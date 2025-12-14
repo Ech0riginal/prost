@@ -28,10 +28,10 @@ impl MapTy {
         }
     }
 
-    fn lib(&self) -> TokenStream {
+    fn lib(&self, prost_path: &Path) -> TokenStream {
         match self {
             MapTy::HashMap => quote! { std },
-            MapTy::BTreeMap => quote! { prost::alloc },
+            MapTy::BTreeMap => quote! { #prost_path::alloc },
         }
     }
 }
@@ -306,7 +306,7 @@ impl Field {
         let key_wrapper = fake_scalar(self.key_ty.clone()).debug(prost_path, quote!(KeyWrapper));
         let key = self.key_ty.rust_type(prost_path);
         let value_wrapper = self.value_ty.debug(prost_path);
-        let libname = self.map_ty.lib();
+        let libname = self.map_ty.lib(prost_path);
         let fmt = quote! {
             fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
                 #key_wrapper
@@ -333,14 +333,14 @@ impl Field {
 
                 let value = ty.rust_type(prost_path);
                 quote! {
-                    struct #wrapper_name<'a>(&'a ::#libname::collections::#type_name<#key, #value>);
+                    struct #wrapper_name<'a>(&'a #libname::collections::#type_name<#key, #value>);
                     impl<'a> ::core::fmt::Debug for #wrapper_name<'a> {
                         #fmt
                     }
                 }
             }
             ValueTy::Message => quote! {
-                struct #wrapper_name<'a, V: 'a>(&'a ::#libname::collections::#type_name<#key, V>);
+                struct #wrapper_name<'a, V: 'a>(&'a #libname::collections::#type_name<#key, V>);
                 impl<'a, V> ::core::fmt::Debug for #wrapper_name<'a, V>
                 where
                     V: ::core::fmt::Debug + 'a,

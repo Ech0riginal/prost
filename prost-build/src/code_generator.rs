@@ -576,7 +576,7 @@ impl<'b> CodeGenerator<'_, 'b> {
         self.buf.push_str(&format!(
             "pub {}: {}<{}, {}>,\n",
             field.rust_name(),
-            map_type.rust_type(),
+            map_type.rust_type(self.context.prost_path()),
             key_ty,
             value_ty
         ));
@@ -986,8 +986,7 @@ impl<'b> CodeGenerator<'_, 'b> {
             Type::Bytes => self
                 .context
                 .bytes_type(fq_message_name, field.name())
-                .rust_type()
-                .to_owned(),
+                .rust_type(self.context.prost_path()),
             Type::Group | Type::Message => self.resolve_ident(field.type_name()),
         }
     }
